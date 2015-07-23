@@ -392,6 +392,7 @@ PushButtonMorph.prototype.createBackgrounds = function () {
     var context,
         ext = this.extent();
 
+    //TODO: fix template drawings
     if (this.template) { // take the backgrounds images from the template
         this.image = this.template.image;
         this.normalImage = this.template.normalImage;
@@ -400,8 +401,9 @@ PushButtonMorph.prototype.createBackgrounds = function () {
         return null;
     }
 
-    this.normalImage = newCanvas(ext);
+    this.normalImage = newCanvas(ext.scaleBy(pixelRatio));
     context = this.normalImage.getContext('2d');
+    context.scale(pixelRatio,pixelRatio);
     this.drawOutline(context);
     this.drawBackground(context, this.color);
     this.drawEdges(
@@ -411,8 +413,9 @@ PushButtonMorph.prototype.createBackgrounds = function () {
         this.color.darker(this.contrast)
     );
 
-    this.highlightImage = newCanvas(ext);
+    this.highlightImage = newCanvas(ext.scaleBy(pixelRatio));
     context = this.highlightImage.getContext('2d');
+    context.scale(pixelRatio,pixelRatio);
     this.drawOutline(context);
     this.drawBackground(context, this.highlightColor);
     this.drawEdges(
@@ -422,8 +425,9 @@ PushButtonMorph.prototype.createBackgrounds = function () {
         this.highlightColor.darker(this.contrast)
     );
 
-    this.pressImage = newCanvas(ext);
+    this.pressImage = newCanvas(ext.scaleBy(pixelRatio));
     context = this.pressImage.getContext('2d');
+    context.scale(pixelRatio,pixelRatio);
     this.drawOutline(context);
     this.drawBackground(context, this.pressColor);
     this.drawEdges(
@@ -683,8 +687,9 @@ ToggleButtonMorph.prototype.createBackgrounds = function () {
         return null;
     }
 
-    this.normalImage = newCanvas(ext);
+    this.normalImage = newCanvas(ext.scaleBy(pixelRatio));
     context = this.normalImage.getContext('2d');
+    context.scale(pixelRatio,pixelRatio);
     this.drawOutline(context);
     this.drawBackground(context, this.color);
     this.drawEdges(
@@ -694,8 +699,9 @@ ToggleButtonMorph.prototype.createBackgrounds = function () {
         this.color.darker(this.contrast)
     );
 
-    this.highlightImage = newCanvas(ext);
+    this.highlightImage = newCanvas(ext.scaleBy(pixelRatio));
     context = this.highlightImage.getContext('2d');
+    context.scale(pixelRatio,pixelRatio);
     this.drawOutline(context);
     this.drawBackground(context, this.highlightColor);
     this.drawEdges(
@@ -707,8 +713,9 @@ ToggleButtonMorph.prototype.createBackgrounds = function () {
 
     // note: don't invert the 3D-ish edges for pressedImage, because
     // it will stay that way, and should not look inverted (or should it?)
-    this.pressImage = newCanvas(ext);
+    this.pressImage = newCanvas(ext.scaleBy(pixelRatio));
     context = this.pressImage.getContext('2d');
+    context.scale(pixelRatio,pixelRatio);
     this.drawOutline(context);
     this.drawBackground(context, this.pressColor);
     this.drawEdges(
@@ -2608,20 +2615,21 @@ DialogBoxMorph.prototype.drawNew = function () {
 
     var context,
         gradient,
-        w = this.width(),
-        h = this.height(),
+        w = this.width() * pixelRatio,
+        h = this.height() * pixelRatio,
         th = Math.floor(
             fontHeight(this.titleFontSize) + this.titlePadding * 2
-        ),
-        shift = this.corner / 2,
+        ) * pixelRatio,
+        shift = (this.corner / 2) * pixelRatio,
         x,
         y,
         isFlat = MorphicPreferences.isFlat && !this.is3D;
 
     // this.alpha = isFlat ? 0.9 : 1;
 
-    this.image = newCanvas(this.extent());
+    this.image = newCanvas(this.extent().scaleBy(pixelRatio));
     context = this.image.getContext('2d');
+    context.scale(pixelRatio,pixelRatio);
 
     // title bar
     if (isFlat) {
@@ -2675,10 +2683,11 @@ DialogBoxMorph.prototype.drawNew = function () {
     gradient.addColorStop(0, this.color.toString());
     gradient.addColorStop(1, this.color.darker(this.contrast.toString()));
 
-    context.lineWidth = this.corner;
+    context.lineWidth = this.corner * pixelRatio;
     context.lineCap = 'round';
     context.strokeStyle = gradient;
 
+    //TODO: change this?
     context.beginPath();
     context.moveTo(this.corner, h - shift);
     context.lineTo(this.corner + 1, h - shift);
@@ -2892,10 +2901,11 @@ AlignmentMorph.prototype.init = function (orientation, padding) {
 // AlignmentMorph displaying and layout
 
 AlignmentMorph.prototype.drawNew = function () {
-    this.image = newCanvas(new Point(1, 1));
+    this.image = newCanvas((new Point(1, 1)).scaleBy(pixelRatio));
     this.fixLayout();
 };
 
+//FIXME: layout!
 AlignmentMorph.prototype.fixLayout = function () {
     var myself = this,
         last = null,
@@ -3183,8 +3193,9 @@ InputFieldMorph.prototype.drawNew = function () {
     this.fixLayout();
 
     // initialize my surface property
-    this.image = newCanvas(this.extent());
+    this.image = newCanvas(this.extent().scaleBy(pixelRatio));
     context = this.image.getContext('2d');
+    context.scale(pixelRatio,pixelRatio);
     if (this.parent) {
         if (this.parent.color.eq(new Color(255, 255, 255))) {
             this.color = this.parent.color.darker(this.contrast * 0.1);
@@ -3203,6 +3214,7 @@ InputFieldMorph.prototype.drawNew = function () {
         .toString();
     this.cachedClrDark = borderColor.darker(this.contrast).toString();
 
+    //TODO: need to change this?
     context.fillRect(
         this.edge,
         this.edge,

@@ -490,7 +490,7 @@ IDE_Morph.prototype.createLogo = function () {
     this.logo = new Morph();
     this.logo.texture = 'snap_logo_sm.png';
     this.logo.drawNew = function () {
-        this.image = newCanvas(this.extent());
+        this.image = newCanvas(this.extent().scaleBy(pixelRatio));
         var context = this.image.getContext('2d'),
             gradient = context.createLinearGradient(
                 0,
@@ -498,6 +498,7 @@ IDE_Morph.prototype.createLogo = function () {
                 this.width(),
                 0
             );
+	context.scale(pixelRatio,pixelRatio);
         gradient.addColorStop(0, 'black');
         gradient.addColorStop(0.5, myself.frameColor.toString());
         context.fillStyle = MorphicPreferences.isFlat ?
