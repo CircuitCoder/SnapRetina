@@ -327,7 +327,7 @@ PaintEditorMorph.prototype.populatePropertiesMenu = function () {
     pc.primaryColorViewer.setExtent(new Point(180, 50));
     pc.primaryColorViewer.color = new Color(0, 0, 0);
     pc.colorpicker = new PaintColorPickerMorph(
-        new Point(180, 100),
+        new Point(180, 100).scaleBy(pixelRatio),
         function (color) {
             var ni = newCanvas(pc.primaryColorViewer.extent()),
                 ctx = ni.getContext("2d"),
@@ -791,7 +791,7 @@ PaintCanvasMorph.prototype.mouseMove = function (pos) {
         return;
     }
 
-    var relpos = pos.subtract(this.bounds.origin),
+    var relpos = pos.subtract(this.bounds.origin).scaleBy(pixelRatio),
         mctx = this.mask.getContext("2d"),
         pctx = this.paper.getContext("2d"),
         x = this.dragRect.origin.x, // original drag X
@@ -943,10 +943,10 @@ PaintCanvasMorph.prototype.mouseLeaveDragging
     = PaintCanvasMorph.prototype.mouseClickLeft;
 
 PaintCanvasMorph.prototype.buildContents = function () {
-    this.background = newCanvas(this.extent());
-    this.paper = newCanvas(this.extent());
-    this.mask = newCanvas(this.extent());
-    this.erasermask = newCanvas(this.extent());
+    this.background = newCanvas(this.extent().scaleBy(pixelRatio));
+    this.paper = newCanvas(this.extent().scaleBy(pixelRatio));
+    this.mask = newCanvas(this.extent().scaleBy(pixelRatio));
+    this.erasemask = newCanvas(this.extent().scaleBy(pixelRatio));
     var i, j, bkctx = this.background.getContext("2d");
     for (i = 0; i < this.background.width; i += 5) {
         for (j = 0; j < this.background.height; j += 5) {
@@ -961,7 +961,7 @@ PaintCanvasMorph.prototype.buildContents = function () {
 };
 
 PaintCanvasMorph.prototype.drawNew = function () {
-    var can = newCanvas(this.extent());
+    var can = newCanvas(this.extent().scaleBy(pixelRatio));
     this.merge(this.background, can);
     this.merge(this.paper, can);
     this.merge(this.mask, can);
@@ -973,6 +973,7 @@ PaintCanvasMorph.prototype.drawFrame = function () {
     var context, borderColor;
 
     context = this.image.getContext('2d');
+    context.scale(pixelRatio,pixelRatio);
     if (this.parent) {
         this.color = this.parent.color.lighter(this.contrast * 0.75);
         borderColor = this.parent.color;
