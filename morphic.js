@@ -2561,10 +2561,14 @@ Morph.prototype.setColor = function (aColor) {
 
 // Morph displaying:
 
+//updateRendering
 Morph.prototype.drawNew = function () {
     // initialize my surface property
-    this.image = newCanvas(this.extent());
+    this.image = newCanvas(this.extent().scaleBy(pixelRatio));
     var context = this.image.getContext('2d');
+
+    context.scale(pixelRatio,pixelRatio);
+
     context.fillStyle = this.color.toString();
     context.fillRect(0, 0, this.width(), this.height());
     if (this.cachedTexture) {
@@ -2609,8 +2613,9 @@ Morph.prototype.drawCachedTexture = function () {
 };
 */
 
+//blit
 Morph.prototype.drawOn = function (aCanvas, aRect) {
-    var rectangle, area, delta, src, context, w, h, sl, st;
+    var rectangle, area, delta, src, context, w, h, sl, st, al, at;
     if (!this.isVisible) {
         return null;
     }
@@ -2622,10 +2627,12 @@ Morph.prototype.drawOn = function (aCanvas, aRect) {
         context = aCanvas.getContext('2d');
         context.globalAlpha = this.alpha;
 
-        sl = src.left();
-        st = src.top();
-        w = Math.min(src.width(), this.image.width - sl);
-        h = Math.min(src.height(), this.image.height - st);
+        sl = src.left() * pixelRatio;
+        st = src.top() * pixelRatio;
+	al = area.left() * pixelRatio;
+	at = area.top() * pixelRatio;
+        w = Math.min(src.width() * pixelRatio, this.image.width - sl);
+        h = Math.min(src.height() * pixelRatio, this.image.height - st);
 
         if (w < 1 || h < 1) {
             return null;
@@ -2633,14 +2640,14 @@ Morph.prototype.drawOn = function (aCanvas, aRect) {
 
         context.drawImage(
             this.image,
-            src.left(),
-            src.top(),
-            w,
-            h,
-            area.left(),
-            area.top(),
-            w,
-            h
+	    Math.round(sl),
+	    Math.round(st),
+            Math.round(w),
+            Math.round(h),
+	    Math.round(al),
+	    Math.round(at),
+            Math.round(w),
+            Math.round(h)
         );
 
     /* "for debugging purposes:"
@@ -2648,14 +2655,14 @@ Morph.prototype.drawOn = function (aCanvas, aRect) {
         try {
             context.drawImage(
                 this.image,
-                src.left(),
-                src.top(),
-                w,
-                h,
-                area.left(),
-                area.top(),
-                w,
-                h
+		Math.round(sl),
+		Math.round(st),
+		Math.round(w),
+		Math.round(h),
+		Math.round(al),
+		Math.round(at),
+		Math.round(w),
+		Math.round(h)
             );
         } catch (err) {
             alert('internal error\n\n' + err
@@ -2672,8 +2679,8 @@ Morph.prototype.drawOn = function (aCanvas, aRect) {
                 + '\n h: ' + h
                 + '\n sl: ' + sl
                 + '\n st: ' + st
-                + '\n area.left: ' + area.left()
-                + '\n area.top ' + area.top()
+                + '\n area.left: ' + al
+                + '\n area.top ' + at
                 );
         }
     */
@@ -2719,6 +2726,8 @@ Morph.prototype.toggleVisibility = function () {
 
 // Morph full image:
 
+// This part is deleted in davidedc/Zombie-Kernel-core@42a7def
+/*
 Morph.prototype.fullImageClassic = function () {
     // why doesn't this work for all Morphs?
     var fb = this.fullBounds(),
@@ -2729,10 +2738,11 @@ Morph.prototype.fullImageClassic = function () {
     img.globalAlpha = this.alpha;
     return img;
 };
+*/
 
 Morph.prototype.fullImage = function () {
     var img, ctx, fb;
-    img = newCanvas(this.fullBounds().extent());
+    img = newCanvas(this.fullBounds().extent() * pixelRatio);
     ctx = img.getContext('2d');
     fb = this.fullBounds();
     this.allChildren().forEach(function (morph) {
@@ -2741,8 +2751,9 @@ Morph.prototype.fullImage = function () {
             if (morph.image.width && morph.image.height) {
                 ctx.drawImage(
                     morph.image,
-                    morph.bounds.origin.x - fb.origin.x,
-                    morph.bounds.origin.y - fb.origin.y
+                    // FIXME: test if it needs to multiply ratio on the first factor
+                    morph.bounds.origin.x - fb.origin.x * pixelRatio,
+                    morph.bounds.origin.y - fb.origin.y * pixelRatio
                 );
             }
         }
@@ -2759,21 +2770,22 @@ Morph.prototype.shadowImage = function (off, color) {
         clr = color || new Color(0, 0, 0);
     fb = this.fullBounds().extent();
     img = this.fullImage();
-    outline = newCanvas(fb);
+    outline = newCanvas(fb.scaleBy(pixelRatio));
     ctx = outline.getContext('2d');
     ctx.drawImage(img, 0, 0);
     ctx.globalCompositeOperation = 'destination-out';
     ctx.drawImage(
         img,
-        -offset.x,
-        -offset.y
+        Math.round(-offset.x) * pixelRatio,
+        Math.round(-offset.y) * pixelRatio
     );
-    sha = newCanvas(fb);
+    sha = newCanvas(fb.scaleBy(pixelRatio));
     ctx = sha.getContext('2d');
+    ctx.scale(pixelRatio,pixelRatio);
     ctx.drawImage(outline, 0, 0);
     ctx.globalCompositeOperation = 'source-atop';
     ctx.fillStyle = clr.toString();
-    ctx.fillRect(0, 0, fb.x, fb.y);
+    ctx.fillRect(0, 0, fb.x * pixelRatio, fb.y * pixelRatio);
     return sha;
 };
 
@@ -2784,16 +2796,16 @@ Morph.prototype.shadowImageBlurred = function (off, color) {
         clr = color || new Color(0, 0, 0);
     fb = this.fullBounds().extent().add(blur * 2);
     img = this.fullImage();
-    sha = newCanvas(fb);
+    sha = newCanvas(fb.scaleBy(pixelRatio));
     ctx = sha.getContext('2d');
-    ctx.shadowOffsetX = offset.x;
-    ctx.shadowOffsetY = offset.y;
-    ctx.shadowBlur = blur;
+    ctx.shadowOffsetX = offset.x * pixelRatio;
+    ctx.shadowOffsetY = offset.y * pixelRatio;
+    ctx.shadowBlur = blur * pixelRatio;
     ctx.shadowColor = clr.toString();
     ctx.drawImage(
         img,
-        blur - offset.x,
-        blur - offset.y
+        Math.round((blur - offset.x)*pixelRatio),
+        Math.round((blur - offset.y)*pixelRatio)
     );
     ctx.shadowOffsetX = 0;
     ctx.shadowOffsetY = 0;
@@ -2801,22 +2813,21 @@ Morph.prototype.shadowImageBlurred = function (off, color) {
     ctx.globalCompositeOperation = 'destination-out';
     ctx.drawImage(
         img,
-        blur - offset.x,
-        blur - offset.y
+        Math.round((blur - offset.x)*pixelRatio),
+        Math.round((blur - offset.y)*pixelRatio)
     );
     return sha;
 };
 
+//TODO: what is this function used for
 Morph.prototype.shadow = function (off, a, color) {
     var shadow = new ShadowMorph(),
-        offset = off || new Point(7, 7),
+        offset = off || new Point(7, 7).scaleBy(pixelRatio),
         alpha = a || ((a === 0) ? 0 : 0.2),
         fb = this.fullBounds();
     shadow.setExtent(fb.extent().add(this.shadowBlur * 2));
     if (useBlurredShadows && !MorphicPreferences.isFlat) {
         shadow.image = this.shadowImageBlurred(offset, color);
-        shadow.alpha = alpha;
-        shadow.setPosition(fb.origin.add(offset).subtract(this.shadowBlur));
     } else {
         shadow.image = this.shadowImage(offset, color);
         shadow.alpha = alpha;
@@ -2977,7 +2988,7 @@ Morph.prototype.getPixelColor = function (aPoint) {
     var point, context, data;
     point = aPoint.subtract(this.bounds.origin);
     context = this.image.getContext('2d');
-    data = context.getImageData(point.x, point.y, 1, 1);
+    data = context.getImageData(point.x * pixelRatio, point.y * pixelRatio, 1, 1);
     return new Color(
         data.data[0],
         data.data[1],
@@ -2995,8 +3006,9 @@ Morph.prototype.isTransparentAt = function (aPoint) {
         point = aPoint.subtract(this.bounds.origin);
         context = this.image.getContext('2d');
         data = context.getImageData(
-            Math.floor(point.x),
-            Math.floor(point.y),
+            // TODO: needs to put the ratio outside?
+            Math.floor(point.x) * pixelRatio,
+            Math.floor(point.y) * pixelRatio,
             1,
             1
         );
@@ -3656,10 +3668,11 @@ Morph.prototype.overlappingImage = function (otherMorph) {
     var fb = this.fullBounds(),
         otherFb = otherMorph.fullBounds(),
         oRect = fb.intersect(otherFb),
-        oImg = newCanvas(oRect.extent()),
+        oImg = newCanvas(oRect.extent().scaleBy(pixelRatio)),
         ctx = oImg.getContext('2d');
+        ctx.scale(pixelRatio,pixelRatio);
     if (oRect.width() < 1 || oRect.height() < 1) {
-        return newCanvas(new Point(1, 1));
+        return newCanvas(new Point(1, 1)).scaleBy(pixelRatio);
     }
     ctx.drawImage(
         this.fullImage(),
@@ -3993,8 +4006,9 @@ PenMorph.prototype.drawNew = function (facing) {
         this.wantsRedraw = true;
         return;
     }
-    this.image = newCanvas(this.extent());
+    this.image = newCanvas(this.extent().scaleBy(pixelRatio));
     context = this.image.getContext('2d');
+    context.scale(pixelRatio, pixelRatio);
     len = this.width() / 2;
     start = this.center().subtract(this.bounds.origin);
 
@@ -4865,8 +4879,10 @@ BoxMorph.prototype.init = function (edge, border, borderColor) {
 BoxMorph.prototype.drawNew = function () {
     var context;
 
-    this.image = newCanvas(this.extent());
+    this.image = newCanvas(this.extent().scaleBy(pixelRatio));
     context = this.image.getContext('2d');
+    //TODO: do we need this one scaled too?
+    context.scale(pixelRatio,pixelRatio);
     if ((this.edge === 0) && (this.border === 0)) {
         BoxMorph.uber.drawNew.call(this);
         return null;
@@ -5287,21 +5303,21 @@ SpeechBubbleMorph.prototype.shadowImage = function (off, color) {
         clr = color || new Color(0, 0, 0);
     fb = this.extent();
     img = this.image;
-    outline = newCanvas(fb);
+    outline = newCanvas(fb.scaleBy(pixelRatio));
     ctx = outline.getContext('2d');
     ctx.drawImage(img, 0, 0);
     ctx.globalCompositeOperation = 'destination-out';
     ctx.drawImage(
         img,
-        -offset.x,
-        -offset.y
+        -offset.x * pixelRatio,
+        -offset.y * pixelRatio
     );
-    sha = newCanvas(fb);
+    sha = newCanvas(fb.scaleBy(pixelRatio));
     ctx = sha.getContext('2d');
     ctx.drawImage(outline, 0, 0);
     ctx.globalCompositeOperation = 'source-atop';
     ctx.fillStyle = clr.toString();
-    ctx.fillRect(0, 0, fb.x, fb.y);
+    ctx.fillRect(0, 0, fb.x * pixelRatio, fb.y * pixelRatio);
     return sha;
 };
 
@@ -5312,16 +5328,16 @@ SpeechBubbleMorph.prototype.shadowImageBlurred = function (off, color) {
         clr = color || new Color(0, 0, 0);
     fb = this.extent().add(blur * 2);
     img = this.image;
-    sha = newCanvas(fb);
+    sha = newCanvas(fb.scaleBy(pixelRatio));
     ctx = sha.getContext('2d');
-    ctx.shadowOffsetX = offset.x;
-    ctx.shadowOffsetY = offset.y;
-    ctx.shadowBlur = blur;
+    ctx.shadowOffsetX = offset.x * pixelRatio;
+    ctx.shadowOffsetY = offset.y * pixelRatio;
+    ctx.shadowBlur = blur * pixelRatio;
     ctx.shadowColor = clr.toString();
     ctx.drawImage(
         img,
-        blur - offset.x,
-        blur - offset.y
+        (blur - offset.x) * pixelRatio,
+        (blur - offset.y) * pixelRatio
     );
     ctx.shadowOffsetX = 0;
     ctx.shadowOffsetY = 0;
@@ -5329,8 +5345,8 @@ SpeechBubbleMorph.prototype.shadowImageBlurred = function (off, color) {
     ctx.globalCompositeOperation = 'destination-out';
     ctx.drawImage(
         img,
-        blur - offset.x,
-        blur - offset.y
+        (blur - offset.x) * pixelRatio,
+        (blur - offset.y) * pixelRatio
     );
     return sha;
 };
@@ -5382,8 +5398,9 @@ CircleBoxMorph.prototype.drawNew = function () {
     if (this.autoOrient) {
         this.autoOrientation();
     }
-    this.image = newCanvas(this.extent());
+    this.image = newCanvas(this.extent().scaleBy(pixelRatio));
     context = this.image.getContext('2d');
+    context.scale(pixelRatio,pixelRatio);
 
     if (this.orientation === 'vertical') {
         radius = this.width() / 2;
@@ -7024,6 +7041,7 @@ StringMorph.prototype.drawNew = function () {
     // initialize my surface property
     this.image = newCanvas();
     context = this.image.getContext('2d');
+    context.scale(pixelRatio,pixelRatio);
     context.font = this.font();
 
     // set my extent
@@ -7037,10 +7055,11 @@ StringMorph.prototype.drawNew = function () {
             fontHeight(this.fontSize) + Math.abs(shadowOffset.y)
         )
     );
-    this.image.width = width;
-    this.image.height = this.height();
+    this.image.width = width * pixelRatio;
+    this.image.height = this.height() * pixelRatio;
 
     // prepare context for drawing text
+    context.scale(pixelRatio,pixelRatio);
     context.font = this.font();
     context.textAlign = 'left';
     context.textBaseline = 'bottom';
@@ -7087,7 +7106,7 @@ StringMorph.prototype.drawNew = function () {
 
 StringMorph.prototype.renderWithBlanks = function (context, startX, y) {
     var space = context.measureText(' ').width,
-        blank = newCanvas(new Point(space, this.height())),
+        blank = newCanvas(new Point(space, this.height()).scaleBy(pixelRatio)),
         ctx = blank.getContext('2d'),
         words = this.text.split(' '),
         x = startX || 0,
@@ -7544,6 +7563,9 @@ TextMorph.prototype.parse = function () {
         w,
         slot = 0;
 
+    // From https://github.com/davidedc/Zombie-Kernel-core/commit/42a7def011fd85660219d4426c14f99649854d27#diff-b732ec65d04186234db8437fe7704f33R62
+    context.scale(pixelRatio,pixelRatio);
+
     context.font = this.font();
     this.maxLineWidth = 0;
     this.lines = [];
@@ -7609,11 +7631,12 @@ TextMorph.prototype.drawNew = function () {
             new Point(this.maxWidth + shadowWidth, height)
         );
     }
-    this.image.width = this.width();
-    this.image.height = this.height();
+    this.image.width = this.width() * pixelRatio;
+    this.image.height = this.height() * pixelRatio;
 
     // prepare context for drawing text
-    context = this.image.getContext('2d');
+    // context = this.image.getContext('2d');
+    context.scale(pixelRatio,pixelRatio);
     context.font = this.font();
     context.textAlign = 'left';
     context.textBaseline = 'bottom';
@@ -8056,18 +8079,21 @@ TriggerMorph.prototype.createBackgrounds = function () {
     var context,
         ext = this.extent();
 
-    this.normalImage = newCanvas(ext);
+    this.normalImage = newCanvas(ext.scaleBy(pixelRatio));
     context = this.normalImage.getContext('2d');
+    context.scale(pixelRatio,pixelRatio);
     context.fillStyle = this.color.toString();
     context.fillRect(0, 0, ext.x, ext.y);
 
-    this.highlightImage = newCanvas(ext);
+    this.highlightImage = newCanvas(ext.scaleBy(pixelRatio));
     context = this.highlightImage.getContext('2d');
+    context.scale(pixelRatio,pixelRatio);
     context.fillStyle = this.highlightColor.toString();
     context.fillRect(0, 0, ext.x, ext.y);
 
-    this.pressImage = newCanvas(ext);
+    this.pressImage = newCanvas(ext.scaleBy(pixelRatio));
     context = this.pressImage.getContext('2d');
+    context.scale(pixelRatio,pixelRatio);
     context.fillStyle = this.pressColor.toString();
     context.fillRect(0, 0, ext.x, ext.y);
 
@@ -8294,15 +8320,18 @@ MenuItemMorph.prototype.createIcon = function (source) {
     var icon = new Morph(),
         src;
     icon.image = source instanceof Morph ? source.fullImage() : source;
+
     // adjust shadow dimensions
     if (source instanceof Morph && source.getShadow()) {
         src = icon.image;
         icon.image = newCanvas(
             source.fullBounds().extent().subtract(
-                this.shadowBlur * (useBlurredShadows ? 1 : 2)
-            )
+                this.shadowBlur * ((useBlurredShadows ? 1 : 2))
+            ) * pixelRatio
         );
-        icon.image.getContext('2d').drawImage(src, 0, 0);
+        context = icon.image.getContext("2d");
+        context.scale(pixelRatio, pixelRatio);
+        context.drawImage(src, 0, 0);
     }
     icon.silentSetWidth(icon.image.width);
     icon.silentSetHeight(icon.image.height);
@@ -9878,7 +9907,7 @@ WorldMorph.prototype.init = function (aCanvas, fillPage) {
     WorldMorph.uber.init.call(this);
     this.color = new Color(205, 205, 205); // (130, 130, 130)
     this.alpha = 1;
-    this.bounds = new Rectangle(0, 0, aCanvas.width, aCanvas.height);
+    this.bounds = new Rectangle(0, 0, aCanvas.width / pixelRatio, aCanvas.height / pixelRatio);
     this.drawNew();
     this.isVisible = true;
     this.isDraggable = false;
@@ -9969,9 +9998,11 @@ WorldMorph.prototype.doOneCycle = function () {
 
 WorldMorph.prototype.fillPage = function () {
     var pos = getDocumentPositionOf(this.worldCanvas),
-        clientHeight = window.innerHeight,
-        clientWidth = window.innerWidth,
+        clientHeight = window.innerHeight * pixelRatio,
+        clientWidth = window.innerWidth * pixelRatio,
         myself = this;
+
+    console.log(clientHeight);
 
 
     if (pos.x > 0) {
@@ -9986,11 +10017,13 @@ WorldMorph.prototype.fillPage = function () {
     }
     if (document.documentElement.scrollTop) {
         // scrolled down b/c of viewport scaling
-        clientHeight = document.documentElement.clientHeight;
+        console.log(pixelRatio);
+        clientHeight = document.documentElement.clientHeight * pixelRatio;
     }
     if (document.documentElement.scrollLeft) {
         // scrolled left b/c of viewport scaling
-        clientWidth = document.documentElement.clientWidth;
+        console.log(pixelRatio);
+        clientWidth = document.documentElement.clientWidth * pixelRatio;
     }
     if (this.worldCanvas.width !== clientWidth) {
         this.worldCanvas.width = clientWidth;
