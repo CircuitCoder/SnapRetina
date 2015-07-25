@@ -7923,10 +7923,10 @@ SymbolMorph.prototype.drawNew = function () {
         this.symbolWidth() + Math.abs(this.shadowOffset.x),
         this.size + Math.abs(this.shadowOffset.y)
     ).scaleBy(pixelRatio));
-    this.silentSetWidth(this.image.width);
-    this.silentSetHeight(this.image.height);
+    //FIXME: pixelRatio on non-integer
+    this.silentSetWidth(this.image.width/pixelRatio);
+    this.silentSetHeight(this.image.height/pixelRatio);
     ctx = this.image.getContext('2d');
-    ctx.scale(pixelRatio,pixelRatio);
     sx = this.shadowOffset.x < 0 ? 0 : this.shadowOffset.x;
     sy = this.shadowOffset.y < 0 ? 0 : this.shadowOffset.y;
     x = this.shadowOffset.x < 0 ? Math.abs(this.shadowOffset.x) : 0;
@@ -7934,14 +7934,14 @@ SymbolMorph.prototype.drawNew = function () {
     if (this.shadowColor) {
         ctx.drawImage(
             this.symbolCanvasColored(this.shadowColor),
-            sx,
-            sy
+            sx * pixelRatio,
+            sy * pixelRatio
         );
     }
     ctx.drawImage(
         this.symbolCanvasColored(this.color),
-        x,
-        y
+        x * pixelRatio,
+        y * pixelRatio
     );
 };
 
@@ -7951,7 +7951,7 @@ SymbolMorph.prototype.symbolCanvasColored = function (aColor) {
         return this.name.thumbnail(new Point(this.symbolWidth(), this.size));
     }
 
-    var canvas = newCanvas(new Point(this.symbolWidth(), this.size));
+    var canvas = newCanvas(new Point(this.symbolWidth(), this.size).scaleBy(pixelRatio));
 
     switch (this.name) {
     case 'square':
