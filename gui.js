@@ -1489,6 +1489,7 @@ IDE_Morph.prototype.fixLayout = function (situation) {
             this.stage.setCenter(this.center());
         } else {
 //            this.stage.setScale(this.isSmallStage ? 0.5 : 1);
+          console.log(this.stageRatio);
             this.stage.setScale(this.isSmallStage ? this.stageRatio : 1);
             this.stage.setTop(this.logo.bottom() + padding);
             this.stage.setRight(this.right());
@@ -1539,6 +1540,8 @@ IDE_Morph.prototype.setProjectName = function (string) {
 // IDE_Morph resizing
 
 IDE_Morph.prototype.setExtent = function (point) {
+    var e = new Error();
+    console.log(e.stack);
     var padding = new Point(430, 110),
         minExt,
         ext;
@@ -3268,7 +3271,7 @@ IDE_Morph.prototype.switchToDevMode = function () {
     this.controlBar.updateLabel();
     this.isAutoFill = false;
     this.isDraggable = true;
-    this.setExtent(world.extent().subtract(100));
+    this.setExtent(world.extent().scaleBy(1/pixelRatio).subtract(100));
     this.setPosition(world.position().add(20));
     this.flushBlocksCache();
     this.refreshPalette();
@@ -3472,7 +3475,7 @@ IDE_Morph.prototype.toggleAppMode = function (appMode) {
             });
         }
     }
-    this.setExtent(this.world().extent()); // resume trackChanges
+    this.setExtent(this.world().extent().scaleBy(1/pixelRatio)); // resume trackChanges
 };
 
 IDE_Morph.prototype.toggleStageSize = function (isSmall) {
@@ -3488,10 +3491,10 @@ IDE_Morph.prototype.toggleStageSize = function (isSmall) {
     function zoomIn() {
         myself.step = function () {
             myself.stageRatio -= (myself.stageRatio - smallRatio) / 2;
-            myself.setExtent(world.extent());
+            myself.setExtent(world.extent().scaleBy(1/pixelRatio));
             if (myself.stageRatio < (smallRatio + 0.1)) {
                 myself.stageRatio = smallRatio;
-                myself.setExtent(world.extent());
+                myself.setExtent(world.extent().scaleBy(1/pixelRatio));
                 delete myself.step;
             }
         };
@@ -3501,11 +3504,11 @@ IDE_Morph.prototype.toggleStageSize = function (isSmall) {
         myself.isSmallStage = true;
         myself.step = function () {
             myself.stageRatio += (1 - myself.stageRatio) / 2;
-            myself.setExtent(world.extent());
+            myself.setExtent(world.extent().scaleBy(1/pixelRatio));
             if (myself.stageRatio > 0.9) {
                 myself.stageRatio = 1;
                 myself.isSmallStage = false;
-                myself.setExtent(world.extent());
+                myself.setExtent(world.extent().scaleBy(1/pixelRatio));
                 myself.controlBar.stageSizeButton.refresh();
                 delete myself.step;
             }
@@ -3529,7 +3532,7 @@ IDE_Morph.prototype.toggleStageSize = function (isSmall) {
         }
     } else {
         if (this.isSmallStage) {this.stageRatio = smallRatio; }
-        this.setExtent(world.extent());
+        this.setExtent(world.extent().scaleBy(1/pixelRatio));
     }
 };
 
@@ -3763,14 +3766,14 @@ IDE_Morph.prototype.setStageExtent = function (aPoint) {
             myself.stage.setExtent(StageMorph.prototype.dimensions);
             myself.stage.clearPenTrails();
             myself.fixLayout();
-            this.setExtent(world.extent());
+            this.setExtent(world.extent().scaleBy(1/pixelRatio));
         };
     }
 
     this.stageRatio = 1;
     this.isSmallStage = false;
     this.controlBar.stageSizeButton.refresh();
-    this.setExtent(world.extent());
+    this.setExtent(world.extent().scaleBy(1/pixelRatio));
     if (this.isAnimating) {
         zoom();
     } else {
@@ -3778,7 +3781,7 @@ IDE_Morph.prototype.setStageExtent = function (aPoint) {
         this.stage.setExtent(StageMorph.prototype.dimensions);
         this.stage.clearPenTrails();
         this.fixLayout();
-        this.setExtent(world.extent());
+        this.setExtent(world.extent().scaleBy(1/pixelRatio));
     }
 };
 
