@@ -2828,6 +2828,8 @@ Morph.prototype.shadow = function (off, a, color) {
     shadow.setExtent(fb.extent().add(this.shadowBlur * 2));
     if (useBlurredShadows && !MorphicPreferences.isFlat) {
         shadow.image = this.shadowImageBlurred(offset, color);
+        shadow.alpha = alpha;
+        shadow.setPosition(fb.origin.add(offset).subtract(this.shadowBlur));
     } else {
         shadow.image = this.shadowImage(offset, color);
         shadow.alpha = alpha;
