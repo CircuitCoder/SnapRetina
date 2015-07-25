@@ -1448,6 +1448,7 @@ SpriteMorph.prototype.drawNew = function () {
         costumeExtent,
         ctx,
         handle;
+    console.log(this.extent());
 
     if (this.isWarped) {
         this.wantsRedraw = true;
@@ -1483,20 +1484,20 @@ SpriteMorph.prototype.drawNew = function () {
             corner = corner.max(point);
         });
         costumeExtent = origin.corner(corner)
-            .extent().multiplyBy(this.scale * stageScale * pixelRatio);
+            .extent().multiplyBy(this.scale * stageScale);
 
         // determine the new relative origin of the rotated shape
         shift = new Point(0, 0).rotateBy(
             radians(-(facing - 90)),
             pic.center()
-        ).subtract(origin).scaleBy(pixelRatio);
+        ).subtract(origin);
 
         // create a new, adequately dimensioned canvas
         // and draw the costume on it
-        this.image = newCanvas(costumeExtent.scaleBy(pixelRatio));
+        this.image = newCanvas(costumeExtent);
         this.silentSetExtent(costumeExtent);
         ctx = this.image.getContext('2d');
-        ctx.scale(this.scale * stageScale * pixelRatio, this.scale * stageScale * pixelRatio);
+        ctx.scale(this.scale * stageScale, this.scale * stageScale);
         ctx.translate(shift.x, shift.y);
         ctx.rotate(radians(facing - 90));
         ctx.drawImage(pic.contents, 0, 0);
@@ -1511,7 +1512,7 @@ SpriteMorph.prototype.drawNew = function () {
         this.rotationOffset = shift
             .translateBy(pic.rotationCenter)
             .rotateBy(radians(-(facing - 90)), shift)
-            .scaleBy(this.scale * stageScale * pixelRatio);
+            .scaleBy(this.scale * stageScale);
     } else {
         facing = isFlipped ? -90 : facing;
         newX = Math.min(
@@ -5432,12 +5433,12 @@ StageMorph.prototype.thumbnail = function (extentPoint, excludedSprite) {
             (extentPoint.x / src.width),
             (extentPoint.y / src.height)
         ),
-        trg = newCanvas(extentPoint),
+        trg = newCanvas(extentPoint.scaleBy(pixelRatio)),
         ctx = trg.getContext('2d'),
         fb,
         fimg;
 
-    ctx.scale(scale, scale);
+    ctx.scale(scale * pixelRatio, scale * pixelRatio);
     ctx.drawImage(
         src,
         0,
@@ -5457,8 +5458,8 @@ StageMorph.prototype.thumbnail = function (extentPoint, excludedSprite) {
             if (fimg.width && fimg.height) {
                 ctx.drawImage(
                     morph.fullImage(),
-                    fb.origin.x - myself.bounds.origin.x,
-                    fb.origin.y - myself.bounds.origin.y
+                    (fb.origin.x - myself.bounds.origin.x) * pixelRatio,
+                    (fb.origin.y - myself.bounds.origin.y) * pixelRatio
                 );
             }
         }

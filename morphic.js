@@ -4009,8 +4009,8 @@ PenMorph.prototype.drawNew = function (facing) {
     this.image = newCanvas(this.extent().scaleBy(pixelRatio));
     context = this.image.getContext('2d');
     context.scale(pixelRatio, pixelRatio);
-    len = this.width() * pixelRatio / 2;
-    start = this.center().subtract(this.bounds.origin).scaleBy(pixelRatio);
+    len = this.width() / 2;
+    start = this.center().subtract(this.bounds.origin);
 
     if (this.penPoint === 'tip') {
         dest = start.distanceAngle(len * 0.75, direction - 180);
