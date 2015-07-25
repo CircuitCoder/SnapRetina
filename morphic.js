@@ -2742,8 +2742,9 @@ Morph.prototype.fullImageClassic = function () {
 
 Morph.prototype.fullImage = function () {
     var img, ctx, fb;
-    img = newCanvas(this.fullBounds().extent() * pixelRatio);
+    img = newCanvas(this.fullBounds().extent().scaleBy(pixelRatio));
     ctx = img.getContext('2d');
+    ctx.scale(pixelRatio,pixelRatio);
     fb = this.fullBounds();
     this.allChildren().forEach(function (morph) {
         if (morph.isVisible) {
@@ -2751,9 +2752,8 @@ Morph.prototype.fullImage = function () {
             if (morph.image.width && morph.image.height) {
                 ctx.drawImage(
                     morph.image,
-                    // FIXME: test if it needs to multiply ratio on the first factor
-                    morph.bounds.origin.x - fb.origin.x * pixelRatio,
-                    morph.bounds.origin.y - fb.origin.y * pixelRatio
+                    (morph.bounds.origin.x - fb.origin.x) * pixelRatio,
+                    (morph.bounds.origin.y - fb.origin.y) * pixelRatio
                 );
             }
         }
@@ -2798,6 +2798,7 @@ Morph.prototype.shadowImageBlurred = function (off, color) {
     img = this.fullImage();
     sha = newCanvas(fb.scaleBy(pixelRatio));
     ctx = sha.getContext('2d');
+    ctx.scale(pixelRatio,pixelRatio);
     ctx.shadowOffsetX = offset.x * pixelRatio;
     ctx.shadowOffsetY = offset.y * pixelRatio;
     ctx.shadowBlur = blur * pixelRatio;
@@ -2819,10 +2820,9 @@ Morph.prototype.shadowImageBlurred = function (off, color) {
     return sha;
 };
 
-//TODO: what is this function used for
 Morph.prototype.shadow = function (off, a, color) {
     var shadow = new ShadowMorph(),
-        offset = off || new Point(7, 7).scaleBy(pixelRatio),
+        offset = off || new Point(7, 7),
         alpha = a || ((a === 0) ? 0 : 0.2),
         fb = this.fullBounds();
     shadow.setExtent(fb.extent().add(this.shadowBlur * 2));
@@ -4881,7 +4881,6 @@ BoxMorph.prototype.drawNew = function () {
 
     this.image = newCanvas(this.extent().scaleBy(pixelRatio));
     context = this.image.getContext('2d');
-    //TODO: do we need this one scaled too?
     context.scale(pixelRatio,pixelRatio);
     if ((this.edge === 0) && (this.border === 0)) {
         BoxMorph.uber.drawNew.call(this);
@@ -5182,7 +5181,7 @@ SpeechBubbleMorph.prototype.drawNew = function () {
         new Point(
             this.padding || this.edge,
             this.border + this.padding + 1
-        )
+        ).scaleBy(pixelRatio)
     ));
 };
 

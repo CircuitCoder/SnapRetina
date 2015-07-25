@@ -3987,7 +3987,7 @@ SpriteMorph.prototype.thumbnail = function (extentPoint) {
 
 SpriteMorph.prototype.fullThumbnail = function (extentPoint) {
     // containing parts and anchor symbols, if any
-    var thumb = this.thumbnail(extentPoint),
+    var thumb = this.thumbnail(extentPoint.scaleBy(pixelRatio)),
         ctx = thumb.getContext('2d'),
         ext = extentPoint.divideBy(3),
         i = 0;

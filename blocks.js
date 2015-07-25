@@ -3123,9 +3123,9 @@ BlockMorph.prototype.thumbnail = function (scale, clipWidth) {
     trgt = newCanvas(new Point(
         clipWidth ? Math.min(ext.x * scale, clipWidth) : ext.x * scale,
         ext.y * scale
-    ));
+    ).scaleBy(pixelRatio));
     ctx = trgt.getContext('2d');
-    ctx.scale(scale, scale);
+    ctx.scale(scale * pixelRatio, scale * pixelRatio);
     ctx.drawImage(this.fullImage(), 0, 0);
     // draw fade-out
     if (clipWidth && ext.x * scale > clipWidth) {
