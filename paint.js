@@ -327,12 +327,13 @@ PaintEditorMorph.prototype.populatePropertiesMenu = function () {
     pc.primaryColorViewer.setExtent(new Point(180, 50));
     pc.primaryColorViewer.color = new Color(0, 0, 0);
     pc.colorpicker = new PaintColorPickerMorph(
-        new Point(180, 100).scaleBy(pixelRatio),
+        new Point(180, 100),
         function (color) {
-            var ni = newCanvas(pc.primaryColorViewer.extent()),
+            var ni = newCanvas(pc.primaryColorViewer.extent().scaleBy(pixelRatio)),
                 ctx = ni.getContext("2d"),
                 i,
                 j;
+            ctx.scale(pixelRatio,pixelRatio);
             myself.paper.settings.primarycolor = color;
             if (color === "transparent") {
                 for (i = 0; i < 180; i += 5) {
@@ -493,10 +494,11 @@ PaintColorPickerMorph.prototype.init = function (extent, action) {
 PaintColorPickerMorph.prototype.drawNew = function () {
     var x = 0,
         y = 0,
-        can = newCanvas(this.extent()),
+        can = newCanvas(this.extent().scaleBy(pixelRatio)),
         ctx = can.getContext("2d"),
         colorselection,
         r;
+    ctx.scale(pixelRatio,pixelRatio);
     for (x = 0; x < this.width(); x += 1) {
         for (y = 0; y < this.height() - 20; y += 1) {
             ctx.fillStyle = "hsl(" +
