@@ -982,6 +982,7 @@ IDE_Morph.prototype.createStage = function () {
     StageMorph.prototype.frameRate = 0;
     this.stage = new StageMorph(this.globalVariables);
     this.stage.setExtent(this.stage.dimensions); // dimensions are fixed
+    //FIXME: fix sprite position
     if (this.currentSprite instanceof SpriteMorph) {
         this.currentSprite.setPosition(
             this.stage.center().subtract(
@@ -1491,6 +1492,7 @@ IDE_Morph.prototype.fixLayout = function (situation) {
             this.stage.setScale(this.isSmallStage ? this.stageRatio : 1);
             this.stage.setTop(this.logo.bottom() + padding);
             this.stage.setRight(this.right());
+            console.log(this.right());
         }
 
         // spriteBar
@@ -1571,7 +1573,7 @@ IDE_Morph.prototype.setExtent = function (point) {
 IDE_Morph.prototype.reactToWorldResize = function (rect) {
     if (this.isAutoFill) {
         this.setPosition(rect.origin);
-        this.setExtent(rect.extent());
+        this.setExtent(rect.extent().scaleBy(1/pixelRatio,1/pixelRatio));
     }
     if (this.filePicker) {
         document.body.removeChild(this.filePicker);
@@ -5484,16 +5486,19 @@ SpriteIconMorph.prototype.createBackgrounds = function () {
         return null;
     }
 
-    this.normalImage = newCanvas(ext);
+    this.normalImage = newCanvas(ext.scaleBy(pixelRatio));
     context = this.normalImage.getContext('2d');
+    context.scale(pixelRatio,pixelRatio);
     this.drawBackground(context, this.color);
 
-    this.highlightImage = newCanvas(ext);
+    this.highlightImage= newCanvas(ext.scaleBy(pixelRatio));
     context = this.highlightImage.getContext('2d');
+    context.scale(pixelRatio,pixelRatio);
     this.drawBackground(context, this.highlightColor);
 
-    this.pressImage = newCanvas(ext);
+    this.pressImage = newCanvas(ext.scaleBy(pixelRatio));
     context = this.pressImage.getContext('2d');
+    context.scale(pixelRatio,pixelRatio);
     this.drawOutline(context);
     this.drawBackground(context, this.pressColor);
     this.drawEdges(

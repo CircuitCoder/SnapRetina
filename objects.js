@@ -4444,11 +4444,11 @@ StageMorph.prototype.drawNew = function () {
     StageMorph.uber.drawNew.call(this);
     if (this.costume) {
         ctx = this.image.getContext('2d');
-        ctx.scale(this.scale, this.scale);
+        ctx.scale(this.scale * pixelRatio, this.scale * pixelRatio);
         ctx.drawImage(
             this.costume.contents,
-            (this.width() / this.scale - this.costume.width()) / 2,
-            (this.height() / this.scale - this.costume.height()) / 2
+            (this.width() / this.scale - this.costume.width()) / 2 * pixelRatio,
+            (this.height() / this.scale - this.costume.height()) / 2 * pixelRatio
         );
         this.image = this.applyGraphicsEffects(this.image);
     }
@@ -4456,7 +4456,7 @@ StageMorph.prototype.drawNew = function () {
 
 StageMorph.prototype.drawOn = function (aCanvas, aRect) {
     // make sure to draw the pen trails canvas as well
-    var rectangle, area, delta, src, context, w, h, sl, st, ws, hs;
+    var rectangle, area, delta, src, context, w, h, sl, st, ws, hs, al, at;
     if (!this.isVisible) {
         return null;
     }
@@ -4470,43 +4470,52 @@ StageMorph.prototype.drawOn = function (aCanvas, aRect) {
 
         sl = src.left();
         st = src.top();
+        al = area.left();
+        at = area.top();
         w = Math.min(src.width(), this.image.width - sl);
         h = Math.min(src.height(), this.image.height - st);
+
+        w *= pixelRatio;
+        h *= pixelRatio;
+        sl *= pixelRatio;
+        st *= pixelRatio;
+        al *= pixelRatio;
+        at *= pixelRatio;
 
         if (w < 1 || h < 1) {
             return null;
         }
         context.drawImage(
             this.image,
-            src.left(),
-            src.top(),
+            sl,
+            st,
             w,
             h,
-            area.left(),
-            area.top(),
+            al,
+            at,
             w,
             h
         );
 
         // pen trails
-        ws = w / this.scale;
-        hs = h / this.scale;
+        ws = w / this.scale / pixelRatio;
+        hs = h / this.scale / pixelRatio;
         context.save();
         context.scale(this.scale, this.scale);
         try {
             context.drawImage(
                 this.penTrails(),
-                src.left() / this.scale,
-                src.top() / this.scale,
+                sl / this.scale,
+                st / this.scale,
                 ws,
                 hs,
-                area.left() / this.scale,
-                area.top() / this.scale,
+                al / this.scale,
+                at / this.scale,
                 ws,
                 hs
             );
         } catch (err) { // sometimes triggered only by Firefox
-            // console.log(err);
+            console.log(err);
             context.restore();
             context.drawImage(
                 this.penTrails(),
