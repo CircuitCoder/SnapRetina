@@ -1494,7 +1494,7 @@ SpriteMorph.prototype.drawNew = function () {
 
         // create a new, adequately dimensioned canvas
         // and draw the costume on it
-        this.image = newCanvas(costumeExtent);
+        this.image = newCanvas(costumeExtent.scaleBy(pixelRatio));
         this.silentSetExtent(costumeExtent);
         ctx = this.image.getContext('2d');
         ctx.scale(this.scale * stageScale, this.scale * stageScale);
@@ -1527,7 +1527,7 @@ SpriteMorph.prototype.drawNew = function () {
         //TODO: need to change current center?
         this.setCenter(currentCenter, true); // just me
         SpriteMorph.uber.drawNew.call(this, facing);
-        this.rotationOffset = this.extent().scaleBy(pixelRatio).divideBy(2);
+        this.rotationOffset = this.extent().divideBy(2);
         this.image = this.applyGraphicsEffects(this.image);
         if (isLoadingCostume) { // retry until costume is done loading
             cst = this.costume;
@@ -3367,6 +3367,9 @@ SpriteMorph.prototype.xPosition = function () {
         stage = this.parent.grabOrigin.origin;
     }
     if (stage) {
+        console.log("Fetching the xPosition");
+        console.log(this.rotationCenter());
+        console.log(stage.center());
         return (this.rotationCenter().x - stage.center().x) / stage.scale;
     }
     return this.rotationCenter().x;
@@ -4470,19 +4473,12 @@ StageMorph.prototype.drawOn = function (aCanvas, aRect) {
         context = aCanvas.getContext('2d');
         context.globalAlpha = this.alpha;
 
-        sl = src.left();
-        st = src.top();
-        al = area.left();
-        at = area.top();
-        w = Math.min(src.width(), this.image.width - sl);
-        h = Math.min(src.height(), this.image.height - st);
-
-        w *= pixelRatio;
-        h *= pixelRatio;
-        sl *= pixelRatio;
-        st *= pixelRatio;
-        al *= pixelRatio;
-        at *= pixelRatio;
+        sl = src.left() * pixelRatio;
+        st = src.top() * pixelRatio;
+        al = area.left() * pixelRatio;
+        at = area.top() * pixelRatio;
+        w = Math.min(src.width() * pixelRatio, this.image.width - sl);
+        h = Math.min(src.height() * pixelRatio, this.image.height - st);
 
         if (w < 1 || h < 1) {
             return null;
@@ -4500,8 +4496,8 @@ StageMorph.prototype.drawOn = function (aCanvas, aRect) {
         );
 
         // pen trails
-        ws = w / this.scale / pixelRatio;
-        hs = h / this.scale / pixelRatio;
+        ws = w / pixelRatio / this.scale;
+        hs = h / pixelRatio / this.scale;
         context.save();
         context.scale(this.scale, this.scale);
         try {

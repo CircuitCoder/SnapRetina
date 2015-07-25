@@ -8414,8 +8414,6 @@ MenuItemMorph.prototype.isSelectedListItem = function () {
 
 // Frames inherit from Morph:
 
-//FIXME: FRAME!
-
 FrameMorph.prototype = new Morph();
 FrameMorph.prototype.constructor = FrameMorph;
 FrameMorph.uber = Morph.prototype;
