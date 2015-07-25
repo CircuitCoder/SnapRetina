@@ -704,6 +704,7 @@ PaintCanvasMorph.prototype.drawcrosshair = function (context) {
     this.changed();
 };
 
+//FIXME: not working
 PaintCanvasMorph.prototype.floodfill = function (sourcepoint) {
     var width = this.paper.width,
         height = this.paper.height,
@@ -792,8 +793,9 @@ PaintCanvasMorph.prototype.mouseMove = function (pos) {
     if (this.currentTool === "paintbucket") {
         return;
     }
+    console.log(pos);
 
-    var relpos = pos.subtract(this.bounds.origin).scaleBy(pixelRatio),
+    var relpos = pos.subtract(this.bounds.origin),
         mctx = this.mask.getContext("2d"),
         pctx = this.paper.getContext("2d"),
         x = this.dragRect.origin.x, // original drag X
@@ -964,6 +966,7 @@ PaintCanvasMorph.prototype.buildContents = function () {
 
 PaintCanvasMorph.prototype.drawNew = function () {
     var can = newCanvas(this.extent().scaleBy(pixelRatio));
+    can.getContext("2d").scale(pixelRatio,pixelRatio);
     this.merge(this.background, can);
     this.merge(this.paper, can);
     this.merge(this.mask, can);
@@ -975,7 +978,6 @@ PaintCanvasMorph.prototype.drawFrame = function () {
     var context, borderColor;
 
     context = this.image.getContext('2d');
-    context.scale(pixelRatio,pixelRatio);
     if (this.parent) {
         this.color = this.parent.color.lighter(this.contrast * 0.75);
         borderColor = this.parent.color;
