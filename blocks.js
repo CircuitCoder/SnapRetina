@@ -3563,8 +3563,9 @@ CommandBlockMorph.prototype.drawNew = function () {
     this.cachedClr = this.color.toString();
     this.cachedClrBright = this.bright();
     this.cachedClrDark = this.dark();
-    this.image = newCanvas(this.extent());
+    this.image = newCanvas(this.extent().scaleBy(pixelRatio));
     context = this.image.getContext('2d');
+    context.scale(pixelRatio,pixelRatio);
     context.fillStyle = this.cachedClr;
 
     // draw the 'flat' shape:
@@ -4289,8 +4290,9 @@ ReporterBlockMorph.prototype.drawNew = function () {
     this.cachedClr = this.color.toString();
     this.cachedClrBright = this.bright();
     this.cachedClrDark = this.dark();
-    this.image = newCanvas(this.extent());
+    this.image = newCanvas(this.extent().scaleBy(pixelRatio));
     context = this.image.getContext('2d');
+    context.scale(pixelRatio,pixelRatio);
     context.fillStyle = this.cachedClr;
 
     if (this.isPredicate) {
@@ -5594,8 +5596,9 @@ CommandSlotMorph.prototype.drawNew = function () {
     this.cachedClr = this.color.toString();
     this.cachedClrBright = this.bright();
     this.cachedClrDark = this.dark();
-    this.image = newCanvas(this.extent());
+    this.image = newCanvas(this.extent().scaleBy(pixelRatio));
     context = this.image.getContext('2d');
+    context.scale(pixelRatio,pixelRatio);
     context.fillStyle = this.cachedClr;
     context.fillRect(0, 0, this.width(), this.height());
 
@@ -5923,8 +5926,9 @@ RingCommandSlotMorph.prototype.drawNew = function () {
     this.cachedClr = this.color.toString();
     this.cachedClrBright = this.bright();
     this.cachedClrDark = this.dark();
-    this.image = newCanvas(this.extent());
+    this.image = newCanvas(this.extent().scaleBy(pixelRatio));
     context = this.image.getContext('2d');
+    context.scale(pixelRatio,pixelRatio);
     context.fillStyle = this.cachedClr;
 
     // draw the 'flat' shape:
@@ -6125,8 +6129,9 @@ CSlotMorph.prototype.drawNew = function () {
     this.cachedClr = this.color.toString();
     this.cachedClrBright = this.bright();
     this.cachedClrDark = this.dark();
-    this.image = newCanvas(this.extent());
+    this.image = newCanvas(this.extent().scaleBy(pixelRatio));
     context = this.image.getContext('2d');
+    context.scale(pixelRatio,pixelRatio);
     context.fillStyle = this.cachedClr;
 
     // draw the 'flat' shape:
@@ -7144,8 +7149,9 @@ InputSlotMorph.prototype.drawNew = function () {
     var context, borderColor, r;
 
     // initialize my surface property
-    this.image = newCanvas(this.extent());
+    this.image = newCanvas(this.extent().scaleBy(pixelRatio));
     context = this.image.getContext('2d');
+    context.scale(pixelRatio,pixelRatio);
     if (this.parent) {
         borderColor = this.parent.color;
     } else {
@@ -7484,8 +7490,9 @@ TemplateSlotMorph.prototype.drawNew = function () {
     this.cachedClr = this.color.toString();
     this.cachedClrBright = this.bright();
     this.cachedClrDark = this.dark();
-    this.image = newCanvas(this.extent());
+    this.image = newCanvas(this.extent().scaleBy(pixelRatio));
     context = this.image.getContext('2d');
+    context.scale(pixelRatio,pixelRatio);
     context.fillStyle = this.cachedClr;
     this.drawRounded(context);
 };
@@ -7539,8 +7546,9 @@ BooleanSlotMorph.prototype.drawNew = function () {
     this.cachedClr = this.color.toString();
     this.cachedClrBright = this.bright();
     this.cachedClrDark = this.dark();
-    this.image = newCanvas(this.extent());
+    this.image = newCanvas(this.extent().scaleBy(pixelRatio));
     context = this.image.getContext('2d');
+    context.scale(pixelRatio,pixelRatio);
     this.drawDiamond(context, true);
 };
 
@@ -7694,13 +7702,14 @@ ArrowMorph.prototype.setSize = function (size) {
 
 ArrowMorph.prototype.drawNew = function () {
     // initialize my surface property
-    this.image = newCanvas(this.extent());
+    this.image = newCanvas(this.extent().scaleBy(pixelRatio));
     var context = this.image.getContext('2d'),
         pad = this.padding,
         h = this.height(),
         h2 = Math.floor(h / 2),
         w = this.width(),
         w2 = Math.floor(w / 2);
+    context.scale(pixelRatio,pixelRatio);
 
     context.fillStyle = this.color.toString();
     context.beginPath();
@@ -7913,10 +7922,11 @@ SymbolMorph.prototype.drawNew = function () {
     this.image = newCanvas(new Point(
         this.symbolWidth() + Math.abs(this.shadowOffset.x),
         this.size + Math.abs(this.shadowOffset.y)
-    ));
+    ).scaleBy(pixelRatio));
     this.silentSetWidth(this.image.width);
     this.silentSetHeight(this.image.height);
     ctx = this.image.getContext('2d');
+    ctx.scale(pixelRatio,pixelRatio);
     sx = this.shadowOffset.x < 0 ? 0 : this.shadowOffset.x;
     sy = this.shadowOffset.y < 0 ? 0 : this.shadowOffset.y;
     x = this.shadowOffset.x < 0 ? Math.abs(this.shadowOffset.x) : 0;
@@ -9185,8 +9195,9 @@ ColorSlotMorph.prototype.drawNew = function () {
     this.silentSetExtent(new Point(side, side));
 
     // initialize my surface property
-    this.image = newCanvas(this.extent());
+    this.image = newCanvas(this.extent().scaleBy(pixelRatio));
     context = this.image.getContext('2d');
+    context.scale(pixelRatio,pixelRatio);
     if (this.parent) {
         borderColor = this.parent.color;
     } else {
@@ -9833,8 +9844,9 @@ FunctionSlotMorph.prototype.drawNew = function () {
     var context, borderColor;
 
     // initialize my surface property
-    this.image = newCanvas(this.extent());
+    this.image = newCanvas(this.extent().scaleBy(pixelRatio));
     context = this.image.getContext('2d');
+    context.scale(pixelRatio,pixelRatio);
     if (this.parent) {
         borderColor = this.parent.color;
     } else {
