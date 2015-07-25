@@ -2301,7 +2301,7 @@ DialogBoxMorph.prototype.popUp = function (world) {
         }
         world.add(this);
         world.keyboardReceiver = this;
-        this.setCenter(world.center());
+        this.setCenter(world.center().scaleBy(1/pixelRatio,1/pixelRatio));
         this.edit();
     }
 };
