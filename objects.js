@@ -1453,7 +1453,7 @@ SpriteMorph.prototype.drawNew = function () {
         this.wantsRedraw = true;
         return;
     }
-    currentCenter = this.center();
+    currentCenter = this.center().scaleBy(pixelRatio);
     isLoadingCostume = this.costume &&
         typeof this.costume.loaded === 'function';
     stageScale = this.parent instanceof StageMorph ?
@@ -1483,20 +1483,20 @@ SpriteMorph.prototype.drawNew = function () {
             corner = corner.max(point);
         });
         costumeExtent = origin.corner(corner)
-            .extent().multiplyBy(this.scale * stageScale);
+            .extent().multiplyBy(this.scale * stageScale * pixelRatio);
 
         // determine the new relative origin of the rotated shape
         shift = new Point(0, 0).rotateBy(
             radians(-(facing - 90)),
             pic.center()
-        ).subtract(origin);
+        ).subtract(origin).scaleBy(pixelRatio);
 
         // create a new, adequately dimensioned canvas
         // and draw the costume on it
-        this.image = newCanvas(costumeExtent);
+        this.image = newCanvas(costumeExtent.scaleBy(pixelRatio));
         this.silentSetExtent(costumeExtent);
         ctx = this.image.getContext('2d');
-        ctx.scale(this.scale * stageScale, this.scale * stageScale);
+        ctx.scale(this.scale * stageScale * pixelRatio, this.scale * stageScale * pixelRatio);
         ctx.translate(shift.x, shift.y);
         ctx.rotate(radians(facing - 90));
         ctx.drawImage(pic.contents, 0, 0);
@@ -1511,7 +1511,7 @@ SpriteMorph.prototype.drawNew = function () {
         this.rotationOffset = shift
             .translateBy(pic.rotationCenter)
             .rotateBy(radians(-(facing - 90)), shift)
-            .scaleBy(this.scale * stageScale);
+            .scaleBy(this.scale * stageScale * pixelRatio);
     } else {
         facing = isFlipped ? -90 : facing;
         newX = Math.min(
@@ -1522,10 +1522,11 @@ SpriteMorph.prototype.drawNew = function () {
             1000
         );
         this.silentSetExtent(new Point(newX, newX));
-        this.image = newCanvas(this.extent());
+        this.image = newCanvas(this.extent().scaleBy(pixelRatio));
+        //TODO: need to change current center?
         this.setCenter(currentCenter, true); // just me
         SpriteMorph.uber.drawNew.call(this, facing);
-        this.rotationOffset = this.extent().divideBy(2);
+        this.rotationOffset = this.extent().scaleBy(pixelRatio).divideBy(2);
         this.image = this.applyGraphicsEffects(this.image);
         if (isLoadingCostume) { // retry until costume is done loading
             cst = this.costume;
@@ -1570,12 +1571,13 @@ SpriteMorph.prototype.colorFiltered = function (aColor) {
         i,
         dta;
 
-    src = this.image.getContext('2d').getImageData(0, 0, ext.x, ext.y);
-    morph.image = newCanvas(ext);
+    src = this.image.getContext('2d').scale(pixelRatio,pixelRatio).getImageData(0, 0, ext.x * pixelRatio, ext.y * pixelRatio);
+    morph.image = newCanvas(ext.scaleBy(pixelRatio));
     morph.bounds = this.bounds.copy();
     ctx = morph.image.getContext('2d');
-    dta = ctx.createImageData(ext.x, ext.y);
-    for (i = 0; i < ext.x * ext.y * 4; i += 4) {
+    ctx.scale(pixelRatio,pixelRatio);
+    dta = ctx.createImageData(ext.x * pixelRatio, ext.y * pixelRatio);
+    for (i = 0; i < ext.x * ext.y * 4 * pixelRatio * pixelRatio; i += 4) {
         clr = new Color(
             src.data[i],
             src.data[i + 1],
@@ -5928,19 +5930,21 @@ Costume.prototype.shrinkWrap = function () {
     // adjust my contents'  bounds to my visible bounding box
     var bb = this.boundingBox(),
         ext = bb.extent(),
-        pic = newCanvas(ext),
+        pic = newCanvas(ext.scaleBy(pixelRatio)),
         ctx = pic.getContext('2d');
+
+    ctx.scale(pixelRatio,pixelRatio);
 
     ctx.drawImage(
         this.contents,
-        bb.origin.x,
-        bb.origin.y,
-        ext.x,
-        ext.y,
+        bb.origin.x * pixelRatio,
+        bb.origin.y * pixelRatio,
+        ext.x * pixelRatio,
+        ext.y * pixelRatio,
         0,
         0,
-        ext.x,
-        ext.y
+        ext.x * pixelRatio,
+        ext.y * pixelRatio
     );
     this.rotationCenter = this.rotationCenter.subtract(bb.origin);
     this.contents = pic;
@@ -5954,8 +5958,10 @@ Costume.prototype.boundingBox = function () {
         pic = this.contents,
         w = pic.width,
         h = pic.height,
-        ctx = pic.getContext('2d'),
-        dta = ctx.getImageData(0, 0, w, h);
+        ctx = pic.getContext('2d');
+    ctx.scale(pixelRatio,pixelRatio);
+
+    var dta = ctx.getImageData(0, 0, w, h);
 
     function getAlpha(x, y) {
         return dta.data[((y * w * 4) + (x * 4)) + 3];
@@ -6011,11 +6017,12 @@ Costume.prototype.boundingBox = function () {
 // Costume duplication
 
 Costume.prototype.copy = function () {
-    var canvas = newCanvas(this.extent()),
+    var canvas = newCanvas(this.extent().scaleBy(pixelRatio)),
         cpy,
         ctx;
 
     ctx = canvas.getContext('2d');
+    ctx.scale(pixelRatio,pixelRatio)
     ctx.drawImage(this.contents, 0, 0);
     cpy = new Costume(canvas, this.name ? copy(this.name) : null);
     cpy.rotationCenter = this.rotationCenter.copy();
@@ -6030,11 +6037,13 @@ Costume.prototype.flipped = function () {
     (mirrored along a vertical axis), used for
     SpriteMorph's rotation style type 2
 */
-    var canvas = newCanvas(this.extent()),
+    var canvas = newCanvas(this.extent() * pixelRatio),
         ctx = canvas.getContext('2d'),
         flipped;
 
-    ctx.translate(this.width(), 0);
+    ctx.scale(pixelRatio,pixelRatio);
+
+    ctx.translate(this.width() * pixelRatio, 0);
     ctx.scale(-1, 1);
     ctx.drawImage(this.contents, 0, 0);
     flipped = new Costume(
@@ -6042,7 +6051,7 @@ Costume.prototype.flipped = function () {
         new Point(
             this.width() - this.rotationCenter.x,
             this.rotationCenter.y
-        )
+        ).scaleBy(pixelRatio)
     );
     return flipped;
 };
@@ -6059,7 +6068,7 @@ Costume.prototype.edit = function (aWorld, anIDE, isnew, oncancel, onsubmit) {
                 newCanvas(StageMorph.prototype.dimensions) :
                 this.contents,
         isnew ?
-                new Point(240, 180) :
+                (new Point(240, 180)).scaleBy(pixelRatio) :
                 this.rotationCenter,
         function (img, rc) {
             myself.contents = img;
@@ -6132,15 +6141,16 @@ Costume.prototype.thumbnail = function (extentPoint) {
         ),
         xOffset = (extentPoint.x - (src.width * scale)) / 2,
         yOffset = (extentPoint.y - (src.height * scale)) / 2,
-        trg = newCanvas(extentPoint),
+        trg = newCanvas(extentPoint.scaleBy(pixelRatio)),
         ctx = trg.getContext('2d');
+    ctx.scale(pixelRatio,pixelRatio);
 
     if (!src || src.width + src.height === 0) {return trg; }
     ctx.scale(scale, scale);
     ctx.drawImage(
         src,
-        Math.floor(xOffset / scale),
-        Math.floor(yOffset / scale)
+        Math.floor(xOffset / scale * pixelRatio),
+        Math.floor(yOffset / scale * pixelRatio)
     );
     return trg;
 };
@@ -6260,7 +6270,7 @@ CostumeEditorMorph.prototype.drawNew = function () {
 
     this.silentSetExtent(this.size);
 
-    this.image = newCanvas(this.extent());
+    this.image = newCanvas(this.extent().scaleBy(pixelRatio));
 
     // draw the background
     if (!this.cachedTexture) {
@@ -6276,9 +6286,10 @@ CostumeEditorMorph.prototype.drawNew = function () {
 */
 
     ctx = this.image.getContext('2d');
+    ctx.scale(pixelRatio.pixelRatio);
 
     // draw the costume
-    ctx.drawImage(this.costume.contents, this.margin.x, this.margin.y);
+    ctx.drawImage(this.costume.contents, this.margin.x*pixelRatio, this.margin.y*pixelRatio);
 
     // draw crosshairs:
     ctx.globalAlpha = 0.5;
@@ -6287,9 +6298,9 @@ CostumeEditorMorph.prototype.drawNew = function () {
     ctx.fillStyle = 'white';
     ctx.beginPath();
     ctx.arc(
-        rp.x,
-        rp.y,
-        20,
+        rp.x * pixelRatio,
+        rp.y * pixelRatio,
+        20 * pixelRatio,
         radians(0),
         radians(360),
         false
@@ -6300,9 +6311,9 @@ CostumeEditorMorph.prototype.drawNew = function () {
 
     ctx.beginPath();
     ctx.arc(
-        rp.x,
-        rp.y,
-        10,
+        rp.x * pielRatio,
+        rp.y * pixelRatio,
+        10 * pixelRatio,
         radians(0),
         radians(360),
         false
@@ -6311,28 +6322,30 @@ CostumeEditorMorph.prototype.drawNew = function () {
 
     // horizontal line:
     ctx.beginPath();
-    ctx.moveTo(0, rp.y);
-    ctx.lineTo(this.costume.width() + this.margin.x * 2, rp.y);
+    ctx.moveTo(0, rp.y * pixelRatio);
+    ctx.lineTo((this.costume.width() + this.margin.x * 2) * pixelRatio, rp.y * pixelRatio);
     ctx.stroke();
 
     // vertical line:
     ctx.beginPath();
-    ctx.moveTo(rp.x, 0);
-    ctx.lineTo(rp.x, this.costume.height() + this.margin.y * 2);
+    ctx.moveTo(rp.x * pixelRatio, 0);
+    ctx.lineTo(rp.x * pixelRatio, (this.costume.height() + this.margin.y * 2) * pixelRatio);
     ctx.stroke();
 };
 
 CostumeEditorMorph.prototype.createTexture = function () {
     var size = 5,
-        texture = newCanvas(new Point(size * 2, size * 2)),
+        texture = newCanvas(new Point(size * 2, size * 2).scaleBy(pixelRatio)),
         ctx = texture.getContext('2d'),
         grey = new Color(230, 230, 230);
 
+    ctx.scale(pixelRatio,pixelRatio);
+
     ctx.fillStyle = 'white';
-    ctx.fillRect(0, 0, size * 2, size * 2);
+    ctx.fillRect(0, 0, size * 2 * pixelRatio, size * 2 * pixelRatio);
     ctx.fillStyle = grey.toString();
-    ctx.fillRect(0, 0, size, size);
-    ctx.fillRect(size, size, size, size);
+    ctx.fillRect(0, 0, size * pixelRatio, size * pixelRatio);
+    ctx.fillRect(size * pixelRatio, size * pixelRatio, size * pixelRatio, size * pixelRatio);
     return texture;
 };
 

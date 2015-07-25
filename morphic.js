@@ -4009,8 +4009,8 @@ PenMorph.prototype.drawNew = function (facing) {
     this.image = newCanvas(this.extent().scaleBy(pixelRatio));
     context = this.image.getContext('2d');
     context.scale(pixelRatio, pixelRatio);
-    len = this.width() / 2;
-    start = this.center().subtract(this.bounds.origin);
+    len = this.width() * pixelRatio / 2;
+    start = this.center().subtract(this.bounds.origin).scaleBy(pixelRatio);
 
     if (this.penPoint === 'tip') {
         dest = start.distanceAngle(len * 0.75, direction - 180);
@@ -8415,6 +8415,8 @@ MenuItemMorph.prototype.isSelectedListItem = function () {
 
 // Frames inherit from Morph:
 
+//FIXME: FRAME!
+
 FrameMorph.prototype = new Morph();
 FrameMorph.prototype.constructor = FrameMorph;
 FrameMorph.uber = Morph.prototype;
@@ -10001,9 +10003,6 @@ WorldMorph.prototype.fillPage = function () {
         clientHeight = window.innerHeight * pixelRatio,
         clientWidth = window.innerWidth * pixelRatio,
         myself = this;
-
-    console.log(clientHeight);
-
 
     if (pos.x > 0) {
         this.worldCanvas.style.position = "absolute";
