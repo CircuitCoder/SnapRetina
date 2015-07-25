@@ -1540,8 +1540,6 @@ IDE_Morph.prototype.setProjectName = function (string) {
 // IDE_Morph resizing
 
 IDE_Morph.prototype.setExtent = function (point) {
-    var e = new Error();
-    console.log(e.stack);
     var padding = new Point(430, 110),
         minExt,
         ext;
