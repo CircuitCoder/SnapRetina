@@ -3971,9 +3971,10 @@ SpriteMorph.prototype.thumbnail = function (extentPoint) {
         ),
         xOffset = (extentPoint.x - (src.width * scale)) / 2,
         yOffset = (extentPoint.y - (src.height * scale)) / 2,
-        trg = newCanvas(extentPoint),
+        trg = newCanvas(extentPoint.scaleBy(pixelRatio)),
         ctx = trg.getContext('2d');
 
+    ctx.scale(pixelRatio,pixelRatio);
     ctx.save();
     if (src.width && src.height) {
         ctx.scale(scale, scale);
@@ -3988,7 +3989,7 @@ SpriteMorph.prototype.thumbnail = function (extentPoint) {
 
 SpriteMorph.prototype.fullThumbnail = function (extentPoint) {
     // containing parts and anchor symbols, if any
-    var thumb = this.thumbnail(extentPoint.scaleBy(pixelRatio)),
+    var thumb = this.thumbnail(extentPoint),
         ctx = thumb.getContext('2d'),
         ext = extentPoint.divideBy(3),
         i = 0;
