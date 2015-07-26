@@ -2799,6 +2799,11 @@ Morph.prototype.shadowImageBlurred = function (off, color) {
     img = this.fullImage();
     sha = newCanvas(fb.scaleBy(pixelRatio));
     ctx = sha.getContext('2d');
+
+    // According to Apple Developer, shadowOffsetX and shadowOffsetY does not scale with the context.
+    // Based on experiements (Chrome 43.0.2357.134m), blur does not scale with the context too.
+    // Not exactly sure why we need to multiply drawing coordinates by the pixel ratio.
+    // Source: [https://developer.apple.com/library/safari/documentation/AudioVideo/Conceptual/HTML-canvas-guide/AddingShadows/AddingShadows.html]
     ctx.shadowOffsetX = offset.x * pixelRatio;
     ctx.shadowOffsetY = offset.y * pixelRatio;
     ctx.shadowBlur = blur * pixelRatio;

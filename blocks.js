@@ -2895,27 +2895,29 @@ BlockMorph.prototype.highlightImage = function (color, border) {
     fb = this.fullBounds().extent();
     img = this.fullImage();
 
-    hi = newCanvas(fb.add(border * 2));
+    hi = newCanvas(fb.add(border * 2).scaleBy(pixelRatio));
     ctx = hi.getContext('2d');
+    // The image is already scaled by the pixel ratio, so we don't need to scale the context again
+    // But the drawing position need to scale accordingly
 
     ctx.drawImage(img, 0, 0);
-    ctx.drawImage(img, border, 0);
-    ctx.drawImage(img, border * 2, 0);
-    ctx.drawImage(img, border * 2, border);
-    ctx.drawImage(img, border * 2, border * 2);
-    ctx.drawImage(img, border, border * 2);
-    ctx.drawImage(img, 0, border * 2);
-    ctx.drawImage(img, 0, border);
+    ctx.drawImage(img, border * pixelRatio,     0);
+    ctx.drawImage(img, border * 2 * pixelRatio, 0);
+    ctx.drawImage(img, border * 2 * pixelRatio, border * pixelRatio);
+    ctx.drawImage(img, border * 2 * pixelRatio, border * 2 * pixelRatio);
+    ctx.drawImage(img, border * pixelRatio,     border * 2 * pixelRatio);
+    ctx.drawImage(img, 0,                       border * 2 * pixelRatio);
+    ctx.drawImage(img, 0,                       border * pixelRatio);
 
     ctx.globalCompositeOperation = 'destination-out';
     ctx.drawImage(img, border, border);
 
-    out = newCanvas(fb.add(border * 2));
+    out = newCanvas(fb.add(border * 2).scaleBy(pixelRatio));
     ctx = out.getContext('2d');
     ctx.drawImage(hi, 0, 0);
     ctx.globalCompositeOperation = 'source-atop';
     ctx.fillStyle = color.toString();
-    ctx.fillRect(0, 0, out.width, out.height);
+    ctx.fillRect(0, 0, out.width * pixelRatio, out.height * pixelRatio);
 
     return out;
 };
@@ -2925,15 +2927,15 @@ BlockMorph.prototype.highlightImageBlurred = function (color, blur) {
     fb = this.fullBounds().extent();
     img = this.fullImage();
 
-    hi = newCanvas(fb.add(blur * 2));
+    hi = newCanvas(fb.add(blur * 2).scaleBy(pixelRatio));
     ctx = hi.getContext('2d');
-    ctx.shadowBlur = blur;
+    ctx.shadowBlur = blur * pixelRatio;
     ctx.shadowColor = color.toString();
-    ctx.drawImage(img, blur, blur);
+    ctx.drawImage(img, blur * pixelRatio, blur * pixelRatio);
 
     ctx.shadowBlur = 0;
     ctx.globalCompositeOperation = 'destination-out';
-    ctx.drawImage(img, blur, blur);
+    ctx.drawImage(img, blur * pixelRatio, blur * pixelRatio);
     return hi;
 };
 
