@@ -5183,7 +5183,7 @@ SpeechBubbleMorph.prototype.drawNew = function () {
         new Point(
             this.padding || this.edge,
             this.border + this.padding + 1
-        ).scaleBy(pixelRatio)
+        )
     ));
 };
 
