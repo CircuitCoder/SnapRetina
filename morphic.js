@@ -10015,12 +10015,10 @@ WorldMorph.prototype.fillPage = function () {
     }
     if (document.documentElement.scrollTop) {
         // scrolled down b/c of viewport scaling
-        console.log(pixelRatio);
         clientHeight = document.documentElement.clientHeight * pixelRatio;
     }
     if (document.documentElement.scrollLeft) {
         // scrolled left b/c of viewport scaling
-        console.log(pixelRatio);
         clientWidth = document.documentElement.clientWidth * pixelRatio;
     }
     if (this.worldCanvas.width !== clientWidth) {

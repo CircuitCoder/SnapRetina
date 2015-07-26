@@ -1489,11 +1489,9 @@ IDE_Morph.prototype.fixLayout = function (situation) {
             this.stage.setCenter(this.center());
         } else {
 //            this.stage.setScale(this.isSmallStage ? 0.5 : 1);
-          console.log(this.stageRatio);
             this.stage.setScale(this.isSmallStage ? this.stageRatio : 1);
             this.stage.setTop(this.logo.bottom() + padding);
             this.stage.setRight(this.right());
-            console.log(this.right());
         }
 
         // spriteBar

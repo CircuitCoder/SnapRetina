@@ -793,7 +793,6 @@ PaintCanvasMorph.prototype.mouseMove = function (pos) {
     if (this.currentTool === "paintbucket") {
         return;
     }
-    console.log(pos);
 
     var relpos = pos.subtract(this.bounds.origin),
         mctx = this.mask.getContext("2d"),

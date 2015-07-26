@@ -1448,7 +1448,6 @@ SpriteMorph.prototype.drawNew = function () {
         costumeExtent,
         ctx,
         handle;
-    console.log(this.extent());
 
     if (this.isWarped) {
         this.wantsRedraw = true;
@@ -3367,9 +3366,6 @@ SpriteMorph.prototype.xPosition = function () {
         stage = this.parent.grabOrigin.origin;
     }
     if (stage) {
-        console.log("Fetching the xPosition");
-        console.log(this.rotationCenter());
-        console.log(stage.center());
         return (this.rotationCenter().x - stage.center().x) / stage.scale;
     }
     return this.rotationCenter().x;
