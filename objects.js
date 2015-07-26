@@ -6657,8 +6657,9 @@ CellMorph.prototype.drawNew = function () {
     ));
 
     // draw my outline
-    this.image = newCanvas(this.extent());
+    this.image = newCanvas(this.extent().scaleBy(pixelRatio));
     context = this.image.getContext('2d');
+    context.scale(pixelRatio,pixelRatio);
     if ((this.edge === 0) && (this.border === 0)) {
         BoxMorph.uber.drawNew.call(this);
         return null;
@@ -6746,8 +6747,9 @@ CellMorph.prototype.layoutChanged = function () {
 
 
     // draw my outline
-    this.image = newCanvas(this.extent());
+    this.image = newCanvas(this.extent().scaleBy(pixelRatio));
     context = this.image.getContext('2d');
+    context.scale(pixelRatio,pixelRatio);
     if ((this.edge === 0) && (this.border === 0)) {
         BoxMorph.uber.drawNew.call(this);
         return null;
@@ -7257,8 +7259,9 @@ WatcherMorph.prototype.userSetSliderMax = function () {
 WatcherMorph.prototype.drawNew = function () {
     var context,
         gradient;
-    this.image = newCanvas(this.extent());
+    this.image = newCanvas(this.extent().scaleBy(pixelRatio));
     context = this.image.getContext('2d');
+    context.scale(pixelRatio,pixelRatio);
     if (MorphicPreferences.isFlat || (this.edge === 0 && this.border === 0)) {
         BoxMorph.uber.drawNew.call(this);
         return;
