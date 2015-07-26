@@ -2744,7 +2744,8 @@ Morph.prototype.fullImage = function () {
     var img, ctx, fb;
     img = newCanvas(this.fullBounds().extent().scaleBy(pixelRatio));
     ctx = img.getContext('2d');
-    ctx.scale(pixelRatio,pixelRatio);
+    // We do not need to scale the context by pixel ratio here
+    // Because the source image's context is already scaled
     fb = this.fullBounds();
     this.allChildren().forEach(function (morph) {
         if (morph.isVisible) {
@@ -2798,7 +2799,6 @@ Morph.prototype.shadowImageBlurred = function (off, color) {
     img = this.fullImage();
     sha = newCanvas(fb.scaleBy(pixelRatio));
     ctx = sha.getContext('2d');
-    ctx.scale(pixelRatio,pixelRatio);
     ctx.shadowOffsetX = offset.x * pixelRatio;
     ctx.shadowOffsetY = offset.y * pixelRatio;
     ctx.shadowBlur = blur * pixelRatio;
