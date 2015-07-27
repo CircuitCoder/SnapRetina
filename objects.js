@@ -6139,9 +6139,6 @@ Costume.prototype.thumbnail = function (extentPoint) {
         yOffset = (extentPoint.y - (src.height * scale)) / 2,
         trg = newCanvas(extentPoint.scaleBy(pixelRatio)),
         ctx = trg.getContext('2d');
-    console.log(extentPoint);
-    console.log(src.width);
-    console.log(src.height);
 
     if (!src || src.width + src.height === 0) {return trg; }
 
