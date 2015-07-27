@@ -1466,6 +1466,7 @@ SpriteMorph.prototype.drawNew = function () {
             isFlipped = true;
         }
     }
+    //FIXME
     if (this.costume && !isLoadingCostume) {
         pic = isFlipped ? this.costume.flipped() : this.costume;
 
@@ -1496,7 +1497,7 @@ SpriteMorph.prototype.drawNew = function () {
         this.image = newCanvas(costumeExtent.scaleBy(pixelRatio));
         this.silentSetExtent(costumeExtent);
         ctx = this.image.getContext('2d');
-        ctx.scale(this.scale * stageScale, this.scale * stageScale);
+        ctx.scale(this.scale * stageScale * pixelRatio, this.scale * stageScale * pixelRatio);
         ctx.translate(shift.x, shift.y);
         ctx.rotate(radians(facing - 90));
         ctx.drawImage(pic.contents, 0, 0);
@@ -4445,11 +4446,11 @@ StageMorph.prototype.drawNew = function () {
     StageMorph.uber.drawNew.call(this);
     if (this.costume) {
         ctx = this.image.getContext('2d');
-        ctx.scale(this.scale * pixelRatio, this.scale * pixelRatio);
+        ctx.scale(this.scale, this.scale);
         ctx.drawImage(
             this.costume.contents,
-            (this.width() / this.scale - this.costume.width()) / 2 * pixelRatio,
-            (this.height() / this.scale - this.costume.height()) / 2 * pixelRatio
+            (this.width() / this.scale - this.costume.width()) / 2,
+            (this.height() / this.scale - this.costume.height()) / 2
         );
         this.image = this.applyGraphicsEffects(this.image);
     }
@@ -5908,7 +5909,7 @@ Costume.prototype.toString = function () {
 // Costume dimensions - all relative
 
 Costume.prototype.extent = function () {
-    return new Point(this.contents.width, this.contents.height);
+    return new Point(this.contents.width / pixelRatio, this.contents.height / pixelRatio);
 };
 
 Costume.prototype.center = function () {
@@ -5940,14 +5941,14 @@ Costume.prototype.shrinkWrap = function () {
 
     ctx.drawImage(
         this.contents,
-        bb.origin.x * pixelRatio,
-        bb.origin.y * pixelRatio,
-        ext.x * pixelRatio,
-        ext.y * pixelRatio,
+        bb.origin.x,
+        bb.origin.y,
+        ext.x,
+        ext.y,
         0,
         0,
-        ext.x * pixelRatio,
-        ext.y * pixelRatio
+        ext.x,
+        ext.y
     );
     this.rotationCenter = this.rotationCenter.subtract(bb.origin);
     this.contents = pic;
@@ -5962,7 +5963,6 @@ Costume.prototype.boundingBox = function () {
         w = pic.width,
         h = pic.height,
         ctx = pic.getContext('2d');
-    ctx.scale(pixelRatio,pixelRatio);
 
     var dta = ctx.getImageData(0, 0, w, h);
 
@@ -6014,7 +6014,10 @@ Costume.prototype.boundingBox = function () {
         return h;
     }
 
-    return new Rectangle(getLeft(), getTop(), getRight(), getBottom());
+    return new Rectangle(getLeft() / pixelRatio,
+                         getTop() / pixelRatio,
+                         getRight() / pixelRatio,
+                         getBottom() / pixelRatio);
 };
 
 // Costume duplication
@@ -6044,17 +6047,15 @@ Costume.prototype.flipped = function () {
         ctx = canvas.getContext('2d'),
         flipped;
 
-    ctx.scale(pixelRatio,pixelRatio);
-
     ctx.translate(this.width() * pixelRatio, 0);
-    ctx.scale(-1, 1);
+    ctx.scale(-pixelRatio, pixelRatio);
     ctx.drawImage(this.contents, 0, 0);
     flipped = new Costume(
         canvas,
         new Point(
             this.width() - this.rotationCenter.x,
             this.rotationCenter.y
-        ).scaleBy(pixelRatio)
+        )
     );
     return flipped;
 };
@@ -6071,7 +6072,7 @@ Costume.prototype.edit = function (aWorld, anIDE, isnew, oncancel, onsubmit) {
                 newCanvas(StageMorph.prototype.dimensions) :
                 this.contents,
         isnew ?
-                (new Point(240, 180)).scaleBy(pixelRatio) :
+                new Point(240, 180) :
                 this.rotationCenter,
         function (img, rc) {
             myself.contents = img;
@@ -6139,21 +6140,21 @@ Costume.prototype.thumbnail = function (extentPoint) {
 */
     var src = this.contents, // at this time sprites aren't composite morphs
         scale = Math.min(
-            (extentPoint.x / src.width),
-            (extentPoint.y / src.height)
+            (extentPoint.x / src.width * pixelRatio),
+            (extentPoint.y / src.height * pixelRatio)
         ),
-        xOffset = (extentPoint.x - (src.width * scale)) / 2,
-        yOffset = (extentPoint.y - (src.height * scale)) / 2,
+        xOffset = (extentPoint.x - (src.width / pixelRatio * scale)) / 2 * pixelRatio,
+        yOffset = (extentPoint.y - (src.height / pixelRatio * scale)) / 2 * pixelRatio,
         trg = newCanvas(extentPoint.scaleBy(pixelRatio)),
         ctx = trg.getContext('2d');
-    ctx.scale(pixelRatio,pixelRatio);
 
     if (!src || src.width + src.height === 0) {return trg; }
+
     ctx.scale(scale, scale);
     ctx.drawImage(
         src,
-        Math.floor(xOffset / scale * pixelRatio),
-        Math.floor(yOffset / scale * pixelRatio)
+        Math.floor(xOffset / scale),
+        Math.floor(yOffset / scale)
     );
     return trg;
 };
