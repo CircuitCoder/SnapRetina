@@ -704,7 +704,6 @@ PaintCanvasMorph.prototype.drawcrosshair = function (context) {
     this.changed();
 };
 
-//FIXME: not working
 PaintCanvasMorph.prototype.floodfill = function (sourcepoint) {
     var width = this.paper.width,
         height = this.paper.height,
@@ -923,7 +922,7 @@ PaintCanvasMorph.prototype.mouseMove = function (pos) {
         }
         mctx.stroke();
         mctx.restore();
-        this.paper = newCanvas(this.extent());
+        this.paper = newCanvas(this.extent().scaleBy(pixelRatio));
         this.merge(this.mask, this.paper);
         break;
     default:
@@ -946,10 +945,10 @@ PaintCanvasMorph.prototype.mouseLeaveDragging
     = PaintCanvasMorph.prototype.mouseClickLeft;
 
 PaintCanvasMorph.prototype.buildContents = function () {
-    this.background = newCanvas(this.extent().scaleBy(pixelRatio));
-    this.paper = newCanvas(this.extent().scaleBy(pixelRatio));
-    this.mask = newCanvas(this.extent().scaleBy(pixelRatio));
-    this.erasemask = newCanvas(this.extent().scaleBy(pixelRatio));
+    this.background = newCanvas(this.extent());
+    this.paper = newCanvas(this.extent());
+    this.mask = newCanvas(this.extent());
+    this.erasemask = newCanvas(this.extent());
     var i, j, bkctx = this.background.getContext("2d");
     for (i = 0; i < this.background.width; i += 5) {
         for (j = 0; j < this.background.height; j += 5) {
@@ -965,7 +964,7 @@ PaintCanvasMorph.prototype.buildContents = function () {
 
 PaintCanvasMorph.prototype.drawNew = function () {
     var can = newCanvas(this.extent().scaleBy(pixelRatio));
-    can.getContext("2d").scale(pixelRatio,pixelRatio);
+    can.getContext("2d").scale(pixelRatio,pixelRatio)
     this.merge(this.background, can);
     this.merge(this.paper, can);
     this.merge(this.mask, can);
