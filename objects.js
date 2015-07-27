@@ -2852,22 +2852,22 @@ SpriteMorph.prototype.goBack = function (layers) {
 SpriteMorph.prototype.overlappingImage = function (otherSprite) {
     // overrides method from Morph because Sprites aren't nested Morphs
     var oRect = this.bounds.intersect(otherSprite.bounds),
-        oImg = newCanvas(oRect.extent()),
+        oImg = newCanvas(oRect.extent().scaleBy(pixelRatio)),
         ctx = oImg.getContext('2d');
 
-    if (oRect.width() < 1 || oRect.height() < 1) {
+    if (oRect.width() * pixelRatio < 1 || oRect.height() * pixelRatio < 1) {
         return newCanvas(new Point(1, 1));
     }
     ctx.drawImage(
         this.image,
-        this.left() - oRect.left(),
-        this.top() - oRect.top()
+        Math.round((this.left() - oRect.left()) * pixelRatio),
+        Math.round((this.top() - oRect.top()) * pixelRatio)
     );
     ctx.globalCompositeOperation = 'source-in';
     ctx.drawImage(
         otherSprite.image,
-        otherSprite.left() - oRect.left(),
-        otherSprite.top() - oRect.top()
+        Math.round((otherSprite.left() - oRect.left()) * pixelRatio),
+        Math.round((otherSprite.top() - oRect.top()) * pixelRatio)
     );
     return oImg;
 };

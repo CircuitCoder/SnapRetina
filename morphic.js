@@ -3663,12 +3663,15 @@ Morph.prototype.isTouching = function (otherMorph) {
         data = oImg.getContext('2d')
             .getImageData(1, 1, oImg.width, oImg.height)
             .data;
-    return detect(
+    //return detect(
+    var result = detect(
         data,
         function (each) {
             return each !== 0;
         }
     ) !== null;
+    console.log(result);
+    return result;
 };
 
 Morph.prototype.overlappingImage = function (otherMorph) {
@@ -3677,21 +3680,21 @@ Morph.prototype.overlappingImage = function (otherMorph) {
         oRect = fb.intersect(otherFb),
         oImg = newCanvas(oRect.extent().scaleBy(pixelRatio)),
         ctx = oImg.getContext('2d');
-        ctx.scale(pixelRatio,pixelRatio);
-    if (oRect.width() < 1 || oRect.height() < 1) {
-        return newCanvas(new Point(1, 1)).scaleBy(pixelRatio);
+    if (oRect.width() * pixelRatio < 1 || oRect.height() * pixelRatio < 1) {
+        return newCanvas(new Point(1, 1));
     }
     ctx.drawImage(
         this.fullImage(),
-        oRect.origin.x - fb.origin.x,
-        oRect.origin.y - fb.origin.y
+        Math.round((oRect.origin.x - fb.origin.x) * pixelRatio),
+        Math.round((oRect.origin.y - fb.origin.y) * pixelRatio)
     );
     ctx.globalCompositeOperation = 'source-in';
     ctx.drawImage(
         otherMorph.fullImage(),
-        otherFb.origin.x - oRect.origin.x,
-        otherFb.origin.y - oRect.origin.y
+        Math.round((otherFb.origin.x - oRect.origin.x) * pixelRatio),
+        Math.round((otherFb.origin.y - oRect.origin.y) * pixelRatio)
     );
+    
     return oImg;
 };
 
