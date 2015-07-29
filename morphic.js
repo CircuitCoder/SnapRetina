@@ -3662,15 +3662,12 @@ Morph.prototype.isTouching = function (otherMorph) {
         data = oImg.getContext('2d')
             .getImageData(1, 1, oImg.width, oImg.height)
             .data;
-    //return detect(
-    var result = detect(
+    return detect(
         data,
         function (each) {
             return each !== 0;
         }
     ) !== null;
-    console.log(result);
-    return result;
 };
 
 Morph.prototype.overlappingImage = function (otherMorph) {
