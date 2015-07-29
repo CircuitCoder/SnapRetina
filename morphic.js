@@ -2782,7 +2782,6 @@ Morph.prototype.shadowImage = function (off, color) {
     );
     sha = newCanvas(fb.scaleBy(pixelRatio));
     ctx = sha.getContext('2d');
-    ctx.scale(pixelRatio,pixelRatio);
     ctx.drawImage(outline, 0, 0);
     ctx.globalCompositeOperation = 'source-atop';
     ctx.fillStyle = clr.toString();

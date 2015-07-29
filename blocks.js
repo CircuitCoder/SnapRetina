@@ -2910,14 +2910,14 @@ BlockMorph.prototype.highlightImage = function (color, border) {
     ctx.drawImage(img, 0,                       border * pixelRatio);
 
     ctx.globalCompositeOperation = 'destination-out';
-    ctx.drawImage(img, border, border);
+    ctx.drawImage(img, border * pixelRatio, border * pixelRatio);
 
     out = newCanvas(fb.add(border * 2).scaleBy(pixelRatio));
     ctx = out.getContext('2d');
     ctx.drawImage(hi, 0, 0);
     ctx.globalCompositeOperation = 'source-atop';
     ctx.fillStyle = color.toString();
-    ctx.fillRect(0, 0, out.width * pixelRatio, out.height * pixelRatio);
+    ctx.fillRect(0, 0, out.width, out.height);
 
     return out;
 };
