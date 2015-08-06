@@ -498,7 +498,7 @@ IDE_Morph.prototype.createLogo = function () {
                 this.width(),
                 0
             );
-	context.scale(pixelRatio,pixelRatio);
+        context.scale(pixelRatio,pixelRatio);
         gradient.addColorStop(0, 'black');
         gradient.addColorStop(0.5, myself.frameColor.toString());
         context.fillStyle = MorphicPreferences.isFlat ?
@@ -511,6 +511,7 @@ IDE_Morph.prototype.createLogo = function () {
 
     this.logo.drawCachedTexture = function () {
         var context = this.image.getContext('2d');
+        context.scale(pixelRatio,pixelRatio);
         context.drawImage(
             this.cachedTexture,
             5,

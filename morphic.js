@@ -2581,6 +2581,7 @@ Morph.prototype.drawNew = function () {
 Morph.prototype.drawTexture = function (url) {
     var myself = this;
     this.cachedTexture = new Image();
+    this.cachedTexture.crossOrigin = "anonymous";
     this.cachedTexture.onload = function () {
         myself.drawCachedTexture();
     };
@@ -4218,8 +4219,9 @@ ColorPaletteMorph.prototype.drawNew = function () {
     var context, ext, x, y, h, l;
 
     ext = this.extent();
-    this.image = newCanvas(this.extent());
+    this.image = newCanvas(this.extent().scaleBy(pixelRatio));
     context = this.image.getContext('2d');
+    context.scale(pixelRatio, pixelRatio);
     this.choice = new Color();
     for (x = 0; x <= ext.x; x += 1) {
         h = 360 * x / ext.x;
@@ -10067,8 +10069,8 @@ WorldMorph.prototype.getGlobalPixelColor = function (point) {
     applied globally.
 */
     var dta = this.worldCanvas.getContext('2d').getImageData(
-        point.x,
-        point.y,
+        point.x * pixelRatio,
+        point.y * pixelRatio,
         1,
         1
     ).data;
